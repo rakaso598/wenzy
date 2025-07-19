@@ -29,7 +29,7 @@ interface Content {
     | "BLOG"
     | "OTHER";
   category: string;
-  tags: string;
+  tags: string[];
   source: string;
   author?: string;
   duration?: number;
@@ -316,17 +316,7 @@ export default function FeedPage() {
                       <span>📝 {recommendation.content.wordCount}자</span>
                     )}
                     <span>
-                      🏷️{" "}
-                      {(() => {
-                        try {
-                          const tags = JSON.parse(recommendation.content.tags);
-                          return Array.isArray(tags)
-                            ? tags.slice(0, 3).join(", ")
-                            : "";
-                        } catch {
-                          return "";
-                        }
-                      })()}
+                      🏷️ {recommendation.content.tags.slice(0, 3).join(", ")}
                     </span>
                   </div>
                 </div>

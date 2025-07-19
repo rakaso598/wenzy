@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -35,17 +35,17 @@ model UserPreferences {
   userId            String @unique
   user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  // 취향 카테고리 (JSON 형태로 저장)
-  favoriteCategories String @default("[]") // ["tech", "music", "food", "travel"]
+  // 취향 카테고리
+  favoriteCategories String[] // ["tech", "music", "food", "travel"]
   
   // 콘텐츠 타입 선호도
-  preferredContentTypes String @default("[]") // ["video", "article", "image", "podcast"]
+  preferredContentTypes String[] // ["video", "article", "image", "podcast"]
   
   // 탐험 vs 활용 비율 (0.0 ~ 1.0, 기본값 0.2 = 20% 탐험)
   explorationRate Float @default(0.2)
   
   // 필터링 설정
-  excludeCategories String @default("[]") // 제외할 카테고리
+  excludeCategories String[] // 제외할 카테고리
   minContentLength  Int?     // 최소 콘텐츠 길이
   maxContentLength  Int?     // 최대 콘텐츠 길이
   
@@ -65,7 +65,7 @@ model Content {
   // 콘텐츠 메타데이터
   contentType ContentType
   category    String
-  tags        String @default("[]")
+  tags        String[]
   
   // 콘텐츠 특성
   language    String   @default("ko")

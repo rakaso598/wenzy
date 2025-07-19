@@ -1,11 +1,9 @@
-// 현재 사용되지 않는 SQLite 시딩 스크립트 (seed-db-postgres.ts 사용)
-/*
 import { PrismaClient, ContentType, InteractionType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 SQLite 데이터베이스 시드 시작...");
+  console.log("🌱 PostgreSQL 데이터베이스 시드 시작...");
 
   // 샘플 사용자 생성
   const user = await prisma.user.upsert({
@@ -25,15 +23,10 @@ async function main() {
     update: {},
     create: {
       userId: user.id,
-      favoriteCategories: JSON.stringify([
-        "tech",
-        "entertainment",
-        "food",
-        "travel",
-      ]),
-      preferredContentTypes: JSON.stringify(["VIDEO", "ARTICLE", "IMAGE"]),
+      favoriteCategories: ["tech", "entertainment", "food", "travel"],
+      preferredContentTypes: ["VIDEO", "ARTICLE", "IMAGE"],
       explorationRate: 0.2,
-      excludeCategories: JSON.stringify([]),
+      excludeCategories: [],
     },
   });
 
@@ -50,7 +43,7 @@ async function main() {
         "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop",
       contentType: ContentType.VIDEO,
       category: "tech",
-      tags: JSON.stringify(["AI", "GPT-5", "기술", "미래"]),
+      tags: ["AI", "GPT-5", "기술", "미래"],
       language: "ko",
       duration: 1200, // 20분
       source: "youtube",
@@ -68,7 +61,7 @@ async function main() {
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop",
       contentType: ContentType.ARTICLE,
       category: "food",
-      tags: JSON.stringify(["맛집", "한국", "음식", "여행"]),
+      tags: ["맛집", "한국", "음식", "여행"],
       language: "ko",
       wordCount: 2500,
       source: "blog",
@@ -86,7 +79,7 @@ async function main() {
         "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400&h=300&fit=crop",
       contentType: ContentType.ARTICLE,
       category: "travel",
-      tags: JSON.stringify(["일본", "오사카", "여행", "가이드"]),
+      tags: ["일본", "오사카", "여행", "가이드"],
       language: "ko",
       wordCount: 3500,
       source: "blog",
@@ -104,7 +97,7 @@ async function main() {
         "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=400&h=300&fit=crop",
       contentType: ContentType.VIDEO,
       category: "entertainment",
-      tags: JSON.stringify(["넷플릭스", "드라마", "추천", "2024"]),
+      tags: ["넷플릭스", "드라마", "추천", "2024"],
       language: "ko",
       duration: 900, // 15분
       source: "youtube",
@@ -122,7 +115,7 @@ async function main() {
         "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
       contentType: ContentType.VIDEO,
       category: "tech",
-      tags: JSON.stringify(["스마트폰", "아이폰", "갤럭시", "비교"]),
+      tags: ["스마트폰", "아이폰", "갤럭시", "비교"],
       language: "ko",
       duration: 1800, // 30분
       source: "youtube",
@@ -140,7 +133,7 @@ async function main() {
         "https://images.unsplash.com/photo-1494859802809-d069c3b71a8a?w=400&h=300&fit=crop",
       contentType: ContentType.ARTICLE,
       category: "food",
-      tags: JSON.stringify(["레시피", "아침", "건강", "식단"]),
+      tags: ["레시피", "아침", "건강", "식단"],
       language: "ko",
       wordCount: 1800,
       source: "blog",
@@ -158,7 +151,7 @@ async function main() {
         "https://images.unsplash.com/photo-1538485399081-7c8ce5a93c61?w=400&h=300&fit=crop",
       contentType: ContentType.IMAGE,
       category: "travel",
-      tags: JSON.stringify(["서울", "근교", "힐링", "여행"]),
+      tags: ["서울", "근교", "힐링", "여행"],
       language: "ko",
       source: "instagram",
       sourceId: "ig_travel_seoul",
@@ -175,7 +168,7 @@ async function main() {
         "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop",
       contentType: ContentType.VIDEO,
       category: "entertainment",
-      tags: JSON.stringify(["게임", "2024", "추천", "TOP10"]),
+      tags: ["게임", "2024", "추천", "TOP10"],
       language: "ko",
       duration: 1500, // 25분
       source: "youtube",
@@ -193,7 +186,7 @@ async function main() {
         "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
       contentType: ContentType.VIDEO,
       category: "health",
-      tags: JSON.stringify(["홈트", "운동", "피트니스", "루틴"]),
+      tags: ["홈트", "운동", "피트니스", "루틴"],
       language: "ko",
       duration: 1200, // 20분
       source: "youtube",
@@ -211,7 +204,7 @@ async function main() {
         "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop",
       contentType: ContentType.ARTICLE,
       category: "tech",
-      tags: JSON.stringify(["웹개발", "트렌드", "2024", "기술"]),
+      tags: ["웹개발", "트렌드", "2024", "기술"],
       language: "ko",
       wordCount: 3000,
       source: "blog",
@@ -260,12 +253,12 @@ async function main() {
 
   console.log("✅ 사용자 상호작용 생성 완료");
 
-  console.log("🎉 SQLite 데이터베이스 시드 완료!");
+  console.log("🎉 PostgreSQL 데이터베이스 시드 완료!");
   console.log(`📊 생성된 데이터:`);
   console.log(`   - 사용자: 1명`);
   console.log(`   - 콘텐츠: ${createdContents.length}개`);
   console.log(`   - 상호작용: ${sampleInteractions.length}개`);
-  console.log(`   - 데이터베이스 파일: ./prisma/dev.db`);
+  console.log(`   - 데이터베이스: Neon PostgreSQL`);
 }
 
 main()
@@ -276,4 +269,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-*/

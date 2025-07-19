@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate && next build",
+    "build": "npx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx scripts/seed-db-sqlite.ts",
+    "seed": "tsx scripts/seed-db-postgres.ts",
     "db:push": "prisma db push",
     "db:generate": "prisma generate"
   },
