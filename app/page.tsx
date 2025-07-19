@@ -181,7 +181,7 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                "왠지" 좋아할 것 같은
+                &ldquo;왠지&rdquo; 좋아할 것 같은
                 <br />
                 <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   AI 큐레이션

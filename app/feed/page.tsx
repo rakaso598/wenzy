@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Heart,
   ThumbsDown,
@@ -272,9 +273,11 @@ export default function FeedPage() {
                 {/* 썸네일 */}
                 {recommendation.content.thumbnail && (
                   <div className="mb-4">
-                    <img
+                    <Image
                       src={recommendation.content.thumbnail}
                       alt={recommendation.content.title}
+                      width={400}
+                      height={192}
                       className="w-full h-48 object-cover rounded-lg"
                     />
                   </div>

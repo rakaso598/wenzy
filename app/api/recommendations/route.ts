@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { recommendationEngine } from "@/lib/recommendation";
 import { InteractionType, FeedbackType } from "@prisma/client";
 
 export async function GET(request: NextRequest) {

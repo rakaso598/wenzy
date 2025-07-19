@@ -1,3 +1,5 @@
+// 현재 사용되지 않는 시딩 스크립트 (seed-db-sqlite.ts 사용)
+/*
 import { PrismaClient, ContentType, InteractionType } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -273,3 +275,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+*/

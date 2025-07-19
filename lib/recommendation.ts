@@ -1,11 +1,8 @@
+// 현재 사용되지 않는 추천 엔진 (API에서 직접 구현됨)
+/*
 import { prisma } from "./db";
-import type {
-  Content,
-  User,
-  UserPreferences,
-  Recommendation,
-} from "@prisma/client";
-import { InteractionType, FeedbackType } from "@prisma/client";
+import type { Content, UserPreferences, Recommendation } from "@prisma/client";
+import { InteractionType } from "@prisma/client";
 
 export interface RecommendationEngine {
   // 사용자별 추천 콘텐츠 생성
@@ -318,11 +315,14 @@ export class WenzyRecommendationEngine implements RecommendationEngine {
       // 사용자가 선호하지 않는 카테고리에서 인기 콘텐츠 찾기
       const userPreferences = await this.analyzeUserPreferences(userId);
 
+      // JSON 문자열을 배열로 파싱
+      const favoriteCategories = JSON.parse(userPreferences.favoriteCategories);
+
       const explorationContents = await prisma.content.findMany({
         where: {
           isActive: true,
           isProcessed: true,
-          category: { notIn: userPreferences.favoriteCategories },
+          category: { notIn: favoriteCategories },
           qualityScore: { gte: 0.7 }, // 높은 품질의 콘텐츠만
           popularityScore: { gte: 0.5 }, // 어느 정도 인기도 있는 콘텐츠
         },
@@ -500,5 +500,6 @@ export class WenzyRecommendationEngine implements RecommendationEngine {
   }
 }
 
-// 싱글톤 인스턴스
-export const recommendationEngine = new WenzyRecommendationEngine();
+// 싱글톤 인스턴스 (현재 사용되지 않음)
+// export const recommendationEngine = new WenzyRecommendationEngine();
+*/
