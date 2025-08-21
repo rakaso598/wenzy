@@ -81,40 +81,69 @@ export default function FeedPage() {
         const response = await fetch(
           `/api/recommendations?userId=${userId}&page=${pageNum}&limit=10`
         );
-        const data: FeedResponse = await response.json();
 
-        // 응답 구조 디버깅
-        if (!data || typeof data !== 'object') {
-          console.error('API 응답이 비정상입니다:', data);
+        // 응답이 정상적인지 먼저 확인
+        if (!response.ok) {
+          console.error('API 응답 에러:', response.status, response.statusText);
           setHasNext(false);
           setPage(1);
-          setRecommendations([]);
+          if (!append) setRecommendations([]);
           return;
         }
 
-        if (data && data.success) {
+        const responseText = await response.text();
+        console.log('Raw API response:', responseText);
+
+        let data: FeedResponse;
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('JSON 파싱 에러:', parseError, 'Raw response:', responseText);
+          setHasNext(false);
+          setPage(1);
+          if (!append) setRecommendations([]);
+          return;
+        }
+
+        console.log('Parsed API data:', data);
+
+        // meta가 undefined이거나 잘못된 경우 에러 메시지 표시
+        if (!data || typeof data !== 'object' || !data.meta) {
+          console.error('API 응답에 meta가 없음:', data);
+          setHasNext(false);
+          setPage(1);
+          if (!append) setRecommendations([]);
+          alert('추천 API 응답에 meta 정보가 없습니다. 서버 로그와 DB 상태를 확인하세요.');
+          return;
+        }
+
+        if (data.success && data.data) {
           if (append) {
             setRecommendations((prev) => [...prev, ...data.data]);
           } else {
             setRecommendations(data.data);
           }
-          if (data.meta && typeof data.meta.hasNext === 'boolean' && typeof data.meta.page === 'number') {
-            setHasNext(data.meta.hasNext);
-            setPage(data.meta.page);
-          } else {
-            // fallback: log and set safe defaults
-            console.warn('API 응답에 meta가 없거나 잘못됨:', data);
-            setHasNext(false);
-            setPage(1);
-          }
+
+          // meta 안전 처리
+          const meta = data.meta || {};
+          const hasNextValue = typeof meta.hasNext === 'boolean' ? meta.hasNext : false;
+          const pageValue = typeof meta.page === 'number' ? meta.page : pageNum;
+
+          setHasNext(hasNextValue);
+          setPage(pageValue);
+
+          console.log('Set hasNext:', hasNextValue, 'page:', pageValue);
         } else {
-          console.error("추천 로드 실패:", data?.error, data);
+          console.error("추천 로드 실패:", data.error || '알 수 없는 오류', data);
           setHasNext(false);
           setPage(1);
-          setRecommendations([]);
+          if (!append) setRecommendations([]);
         }
       } catch (error) {
         console.error("추천 로드 중 오류:", error);
+        setHasNext(false);
+        setPage(1);
+        if (!append) setRecommendations([]);
       } finally {
         setLoading(false);
         setLoadingMore(false);

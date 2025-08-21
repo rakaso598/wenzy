@@ -102,6 +102,7 @@ export class WenzyRecommendationEngine implements RecommendationEngine {
     let finalList = selected.map(s => finalCandidates.find(f => f.contentId === s.id)!).slice(0, limit);
 
     // Post-process: dedupe near-duplicates and cap authors
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     finalList = await this.postProcessRanking(finalList as any) as typeof finalList;
 
     // Fire-and-forget: update lightweight popularity estimates for these candidates
@@ -446,6 +447,7 @@ export class WenzyRecommendationEngine implements RecommendationEngine {
         await prisma.content.update({ where: { id: contentId }, data: { popularityScore: newPop } });
       } catch (e) {
         // ignore individual update errors in fire-and-forget
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.warn('pop-update-fail', contentId, (e as any)?.message || e);
       }
     }

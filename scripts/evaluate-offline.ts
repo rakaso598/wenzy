@@ -10,6 +10,8 @@
 import { prisma } from '../lib/db';
 import { recommendationEngine } from '../lib/recommendation';
 import { InteractionType } from '@prisma/client';
+import { type Content, type Recommendation } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 const TEST_REC_LIMIT = 20;
 const HOLDOUT_COUNT = 3; // last N positive interactions as test set
@@ -33,7 +35,7 @@ async function main() {
     if (test.length === 0) continue;
 
     // Generate current recommendations (will write DB; acceptable for MVP) - could be replaced with memory version
-    const recs = await recommendationEngine.generateRecommendations(u.id, TEST_REC_LIMIT);
+    const recs: (Recommendation & { content: Content | null })[] = await recommendationEngine.generateRecommendations(u.id, TEST_REC_LIMIT);
     const ranked = recs.map(r => r.contentId);
 
     aggregate.users += 1;
@@ -74,10 +76,10 @@ async function main() {
 
   // Persist the aggregated metrics to the database for later inspection
   try {
-    await prisma.offlineMetric.create({ data: { metrics: result.metrics as any, note: `holdout=${HOLDOUT_COUNT} minPos=${MIN_TOTAL_POSITIVE} users=${aggregate.users}` } });
+    await prisma.offlineMetric.create({ data: { metrics: result.metrics as Prisma.JsonObject, note: `holdout=${HOLDOUT_COUNT} minPos=${MIN_TOTAL_POSITIVE} users=${aggregate.users}` } });
     console.log('Saved OfflineMetric to DB.');
   } catch (e) {
-    console.warn('Failed to save OfflineMetric', (e as any)?.message || e);
+    console.warn('Failed to save OfflineMetric', (e as Error)?.message || e);
   }
 }
 

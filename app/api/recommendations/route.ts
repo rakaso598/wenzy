@@ -16,12 +16,14 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "1"; // force regeneration
 
     if (!userEmail) {
-      return NextResponse.json({ success: false, error: "사용자 ID가 필요합니다" }, { status: 400 });
+      console.error('[API] userId 누락');
+      return NextResponse.json({ success: false, error: "사용자 ID가 필요합니다", data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 1, hasNext: false, hasPrev: false } }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({ where: { email: userEmail } });
     if (!user) {
-      return NextResponse.json({ success: false, error: "사용자를 찾을 수 없습니다" }, { status: 404 });
+      console.error(`[API] 유저 없음: ${userEmail}`);
+      return NextResponse.json({ success: false, error: "사용자를 찾을 수 없습니다", data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 1, hasNext: false, hasPrev: false } }, { status: 404 });
     }
 
     // Determine if regeneration needed
@@ -37,6 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (needRegenerate) {
+      console.log(`[API] 추천 재생성: userId=${user.id}, limit=${limit}`);
       await recommendationEngine.generateRecommendations(user.id, limit);
       existing = await prisma.recommendation.findMany({
         where: { userId: user.id, expiresAt: { gt: new Date() } },
@@ -56,6 +59,16 @@ export async function GET(request: NextRequest) {
       )
     );
 
+    console.log(`[API] 추천 반환: userId=${user.id}, count=${slice.length}, meta=`, {
+      refreshed: needRegenerate,
+      page,
+      limit,
+      total: existing.length,
+      totalPages: Math.ceil(existing.length / limit) || 1,
+      hasNext: offset + limit < existing.length,
+      hasPrev: page > 1,
+    });
+
     return NextResponse.json({
       success: true,
       data: slice,
@@ -71,7 +84,12 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("추천 콘텐츠 조회 중 오류:", error);
-    return NextResponse.json({ success: false, error: "서버 오류가 발생했습니다" }, { status: 500 });
+    return NextResponse.json({
+      success: false,
+      data: [],
+      meta: { page: 1, limit: 10, total: 0, totalPages: 1, hasNext: false, hasPrev: false },
+      error: "서버 오류가 발생했습니다"
+    }, { status: 500 });
   }
 }
 
