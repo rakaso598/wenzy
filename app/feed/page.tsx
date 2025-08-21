@@ -82,7 +82,6 @@ export default function FeedPage() {
           `/api/recommendations?userId=${userId}&page=${pageNum}&limit=10`
         );
 
-        // 응답이 정상적인지 먼저 확인
         if (!response.ok) {
           console.error('API 응답 에러:', response.status, response.statusText);
           setHasNext(false);
@@ -91,48 +90,46 @@ export default function FeedPage() {
           return;
         }
 
-        const responseText = await response.text();
-        console.log('Raw API response:', responseText);
-
         let data: FeedResponse;
         try {
-          data = JSON.parse(responseText);
+          data = await response.json();
         } catch (parseError) {
-          console.error('JSON 파싱 에러:', parseError, 'Raw response:', responseText);
+          console.error('JSON 파싱 에러:', parseError);
           setHasNext(false);
           setPage(1);
           if (!append) setRecommendations([]);
           return;
         }
 
-        console.log('Parsed API data:', data);
+        console.log('API 응답:', data);
 
-        // meta가 undefined이거나 잘못된 경우 에러 메시지 표시
         if (!data || typeof data !== 'object' || !data.meta) {
-          console.error('API 응답에 meta가 없음:', data);
+          console.error('API 응답이 비정상적이거나 meta가 없음:', data);
           setHasNext(false);
           setPage(1);
           if (!append) setRecommendations([]);
-          alert('추천 API 응답에 meta 정보가 없습니다. 서버 로그와 DB 상태를 확인하세요.');
           return;
         }
 
-        if (data.success && data.data) {
+        if (data.success && Array.isArray(data.data)) {
           if (append) {
             setRecommendations((prev) => [...prev, ...data.data]);
           } else {
             setRecommendations(data.data);
           }
 
-          // meta 안전 처리
-          const meta = data.meta || {};
-          const hasNextValue = typeof meta.hasNext === 'boolean' ? meta.hasNext : false;
-          const pageValue = typeof meta.page === 'number' ? meta.page : pageNum;
+          const hasNextValue = typeof data.meta.hasNext === 'boolean' ? data.meta.hasNext : false;
+          const pageValue = typeof data.meta.page === 'number' ? data.meta.page : pageNum;
 
           setHasNext(hasNextValue);
           setPage(pageValue);
 
-          console.log('Set hasNext:', hasNextValue, 'page:', pageValue);
+          console.log('추천 로드 완료:', {
+            count: data.data.length,
+            page: pageValue,
+            hasNext: hasNextValue,
+            total: data.meta.total
+          });
         } else {
           console.error("추천 로드 실패:", data.error || '알 수 없는 오류', data);
           setHasNext(false);
