@@ -59,18 +59,26 @@ async function main() {
     aggregate.recall[k] /= aggregate.users;
     aggregate.ndcg[k] /= aggregate.users;
   }
-  console.table({
+
+  const result = {
     users: aggregate.users,
-    ...Object.fromEntries(K_VALUES.map(k => [
-      `P@${k}`, aggregate.precision[k].toFixed(3),
+    metrics: Object.fromEntries(K_VALUES.flatMap(k => [
+      [`P@${k}`, Number(aggregate.precision[k].toFixed(4))],
+      [`R@${k}`, Number(aggregate.recall[k].toFixed(4))],
+      [`NDCG@${k}`, Number(aggregate.ndcg[k].toFixed(4))],
     ])),
-    ...Object.fromEntries(K_VALUES.map(k => [
-      `R@${k}`, aggregate.recall[k].toFixed(3),
-    ])),
-    ...Object.fromEntries(K_VALUES.map(k => [
-      `NDCG@${k}`, aggregate.ndcg[k].toFixed(3),
-    ])),
-  });
+    runAt: new Date().toISOString(),
+  };
+
+  console.table({ users: aggregate.users, ...Object.fromEntries(K_VALUES.map(k => ([`P@${k}`, aggregate.precision[k].toFixed(3)]))), ...Object.fromEntries(K_VALUES.map(k => ([`R@${k}`, aggregate.recall[k].toFixed(3)]))), ...Object.fromEntries(K_VALUES.map(k => ([`NDCG@${k}`, aggregate.ndcg[k].toFixed(3)]))), });
+
+  // Persist the aggregated metrics to the database for later inspection
+  try {
+    await prisma.offlineMetric.create({ data: { metrics: result.metrics as any, note: `holdout=${HOLDOUT_COUNT} minPos=${MIN_TOTAL_POSITIVE} users=${aggregate.users}` } });
+    console.log('Saved OfflineMetric to DB.');
+  } catch (e) {
+    console.warn('Failed to save OfflineMetric', (e as any)?.message || e);
+  }
 }
 
 function calcNDCG(ranked: string[], relevant: string[]): number {

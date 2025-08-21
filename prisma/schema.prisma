@@ -189,6 +189,16 @@ model Session {
   @@map("sessions")
 }
 
+model OfflineMetric {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  // Store evaluation results as JSON, e.g. { "P@5":0.12, "P@10":0.08, "users":100 }
+  metrics   Json
+  note      String?
+
+  @@map("offline_metrics")
+}
+
 // 열거형 정의
 enum ContentType {
   VIDEO

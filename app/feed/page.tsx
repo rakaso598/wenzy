@@ -20,14 +20,14 @@ interface Content {
   url: string;
   thumbnail?: string;
   contentType:
-    | "VIDEO"
-    | "ARTICLE"
-    | "IMAGE"
-    | "PODCAST"
-    | "SOCIAL_POST"
-    | "NEWS"
-    | "BLOG"
-    | "OTHER";
+  | "VIDEO"
+  | "ARTICLE"
+  | "IMAGE"
+  | "PODCAST"
+  | "SOCIAL_POST"
+  | "NEWS"
+  | "BLOG"
+  | "OTHER";
   category: string;
   tags: string[];
   source: string;
@@ -48,13 +48,14 @@ interface FeedResponse {
   success: boolean;
   data: Recommendation[];
   error?: string;
-  pagination: {
+  meta: {
     page: number;
     limit: number;
     total: number;
     totalPages: number;
     hasNext: boolean;
     hasPrev: boolean;
+    refreshed?: boolean;
   };
 }
 
@@ -82,16 +83,35 @@ export default function FeedPage() {
         );
         const data: FeedResponse = await response.json();
 
-        if (data.success) {
+        // 응답 구조 디버깅
+        if (!data || typeof data !== 'object') {
+          console.error('API 응답이 비정상입니다:', data);
+          setHasNext(false);
+          setPage(1);
+          setRecommendations([]);
+          return;
+        }
+
+        if (data && data.success) {
           if (append) {
             setRecommendations((prev) => [...prev, ...data.data]);
           } else {
             setRecommendations(data.data);
           }
-          setHasNext(data.pagination.hasNext);
-          setPage(data.pagination.page);
+          if (data.meta && typeof data.meta.hasNext === 'boolean' && typeof data.meta.page === 'number') {
+            setHasNext(data.meta.hasNext);
+            setPage(data.meta.page);
+          } else {
+            // fallback: log and set safe defaults
+            console.warn('API 응답에 meta가 없거나 잘못됨:', data);
+            setHasNext(false);
+            setPage(1);
+          }
         } else {
-          console.error("추천 로드 실패:", data.error);
+          console.error("추천 로드 실패:", data?.error, data);
+          setHasNext(false);
+          setPage(1);
+          setRecommendations([]);
         }
       } catch (error) {
         console.error("추천 로드 중 오류:", error);
