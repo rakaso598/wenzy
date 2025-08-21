@@ -9,7 +9,9 @@
     "lint": "next lint",
     "seed": "tsx scripts/seed-db-postgres.ts",
     "db:push": "prisma db push",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "embeddings:gen": "tsx scripts/generate-embeddings.ts",
+    "eval:offline": "tsx scripts/evaluate-offline.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",

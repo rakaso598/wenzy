@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // pgvector extension must be enabled manually at the DB level: CREATE EXTENSION IF NOT EXISTS vector;
 }
 
 model User {
@@ -84,6 +85,11 @@ model Content {
   // 상태
   isActive    Boolean  @default(true)
   isProcessed Boolean  @default(false) // AI 분석 완료 여부
+  // Moderation / Safety flag (true = passed safety checks)
+  isSafe      Boolean  @default(true)
+  
+  // Embedding vector (semantic representation). Empty list => not yet computed.
+  embedding   Float[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
